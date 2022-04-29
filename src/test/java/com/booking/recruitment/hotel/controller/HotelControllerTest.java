@@ -20,8 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -85,8 +84,39 @@ class HotelControllerTest {
             Hotel.class);
 
     assertThat(getNewHotelResult.getName(), equalTo(newHotel.getName()));
+    assertThat(getNewHotelResult.getCity(), equalTo(city));
   }
 
+  @Test
+  void hotelNotFoundAfterDeletion() throws Exception {
+    Hotel newHotel = createNewHotel();
+
+    mockMvc
+        .perform(
+            delete("/hotel/" + newHotel.getId()))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            get("/hotel/" + newHotel.getId()))
+        .andExpect(status().isNotFound());
+  }
+
+  private Hotel createNewHotel() throws Exception {
+    Hotel newHotel = Hotel.builder().setName("This is a test hotel").build();
+    return mapper
+        .readValue(
+            mockMvc
+                .perform(
+                    post("/hotel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(newHotel)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString(),
+            Hotel.class);
+  }
 
   @Test
   @DisplayName("When a hotel creation is requested then specifying the ID is not allowed")

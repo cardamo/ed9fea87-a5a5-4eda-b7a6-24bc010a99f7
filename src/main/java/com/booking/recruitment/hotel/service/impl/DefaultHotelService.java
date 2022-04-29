@@ -45,4 +45,17 @@ class DefaultHotelService implements HotelService {
   public Optional<Hotel> getHotel(Long id) {
     return hotelRepository.findById(id);
   }
+
+  @Override
+  public boolean deleteHotel(Long id) {
+    return hotelRepository.findById(id)
+        .filter(hotel -> !hotel.isDeleted())
+        .map(hotel -> {
+          hotel.setDeleted(true);
+          // it's ok to have two transactions and a little race here, since operation is idempotent and there's not undelete operation (yet)
+          hotelRepository.save(hotel);
+          return true;
+        })
+        .orElse(false);
+  }
 }

@@ -38,4 +38,11 @@ public class HotelController {
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
+
+  @DeleteMapping("/{id}")
+  public HttpStatus deleteHotel(@PathVariable Long id) {
+    return hotelService.deleteHotel(id)
+        ? HttpStatus.OK // should be ACCEPTED since there's no response body, but requirements say 200
+        : HttpStatus.NOT_FOUND;
+  }
 }

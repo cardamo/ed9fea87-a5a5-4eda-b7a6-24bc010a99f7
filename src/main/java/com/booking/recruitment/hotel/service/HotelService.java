@@ -13,4 +13,9 @@ public interface HotelService {
   Hotel createNewHotel(Hotel hotel);
 
   Optional<Hotel> getHotel(Long id);
+
+  /**
+   * @return following the java collections style, true is returned when there were changes (
+   */
+  boolean deleteHotel(Long id);
 }

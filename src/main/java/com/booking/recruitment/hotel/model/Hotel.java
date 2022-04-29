@@ -1,5 +1,6 @@
 package com.booking.recruitment.hotel.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -24,6 +25,7 @@ public class Hotel implements Serializable {
   private String address;
   private double latitude;
   private double longitude;
+  @JsonIgnore
   private boolean deleted = false;
 
   public Hotel() {}

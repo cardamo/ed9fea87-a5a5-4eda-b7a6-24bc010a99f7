@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,5 +39,10 @@ class DefaultHotelService implements HotelService {
     }
 
     return hotelRepository.save(hotel);
+  }
+
+  @Override
+  public Optional<Hotel> getHotel(Long id) {
+    return hotelRepository.findById(id);
   }
 }

@@ -73,11 +73,45 @@ class HotelControllerTest {
 
     newHotel.setId(newHotelId); // Populate the ID of the hotel after successful creation
 
-    assertThat(
-        repository
-            .findById(newHotelId)
-            .orElseThrow(
-                () -> new IllegalStateException("New Hotel has not been saved in the repository")),
-        equalTo(newHotel));
+    Hotel getNewHotelResult = mapper
+        .readValue(
+            mockMvc
+                .perform(
+                    get("/hotel/" + newHotelId))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString(),
+            Hotel.class);
+
+    assertThat(getNewHotelResult.getName(), equalTo(newHotel.getName()));
+  }
+
+
+  @Test
+  @DisplayName("When a hotel creation is requested then specifying the ID is not allowed")
+  void hotelNotCreatedIfIdSpecified() throws Exception {
+    long newHotelId = 891995;
+    mockMvc
+        .perform(
+            get("/hotel/" + newHotelId))
+        .andExpect(status().isNotFound()); // check that id is not taken before creation
+
+    Hotel newHotel = Hotel.builder().setName("This is a test hotel").setId(newHotelId).build();
+
+    mockMvc
+        .perform(
+            post("/hotel")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(newHotel)))
+        .andExpect(status().isBadRequest())
+        .andReturn()
+        .getResponse()
+        .getContentAsString(); // XXX: would be nice to have a clear message in response
+
+    mockMvc
+        .perform(
+            get("/hotel/" + newHotelId))
+        .andExpect(status().isNotFound());
   }
 }
